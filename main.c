@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <time.h>
 #include "util.h"
-#include<windows.h>
-#pragma warning(disable: 4996)
+#include<windows.h>		
+#pragma warning(disable: 4996) // 오류 방지 ㅋㄷ
 
 void clear_menu(); //박스 생성 함수
 void title(void);  // 타이틀 출력
@@ -13,6 +13,7 @@ int Choice_List(int );
 void InitScreen(void);
 void printwordset(int i);
 void Run();
+void Run1();
 void ProcessInput(int);
 void CompareWords();
 void NextStage();
@@ -23,13 +24,24 @@ void UpdateFailCount();
 void StageScreen();
 int snakegame();
 
+void ProcessInput1(int, int *);
+void CompareWords1(int *i);
+
+void TP_print();
+void rand_TP_answer();
+void battinggame();
+
+void Run_TP();
+void Process_TP(int key);
+
+
 #define KEY_ESC 27
 #define KEY_ENTER '\r'
 #define KEY_BS '\b'
 
 #define MAX_WORD_LENGTH 24 //최대 단어 길이
 #define MAX_SCREEN_WORD_COUNT 22
-#define WORD_COUNT 16 //단어 받아올 갯수
+#define WORD_COUNT 119 //단어 받아올 갯수
 
 #define COMMAND_SIZE 256  //커맨드 배열칸수
 
@@ -46,8 +58,8 @@ ScreenWord g_screen_word[MAX_SCREEN_WORD_COUNT];// 화면에 나타난 단어들(g_words�
 int g_screen_word_count = 0;                    // 화면에 나타난 단어 개수
 
 clock_t g_start_time;                           // 기준 시각
-double g_falling_speed = 2.0;
-
+double g_falling_speed = 2.0; 
+double g_chage_speed = 5;
 //int g_word_count = 16;
 char **g_words;
 int g_fail_count = 0;                           // 실패한 개수
@@ -56,9 +68,15 @@ char g_input_word[MAX_WORD_LENGTH + 1];         // 입력 단어 저장
 int g_input_word_length = 0;                    // 입력 단어 길이
 int stage = 1;                                  // 스테이지 단계 저장
 
-
+//긴 글 연습
+char typing_answer[200];  //정답을 랜덤으로 지정
+int typ_count; //입력한 갯수
+char typing_user[200]; //유저의 입력값을 담을 
+int finish_TP;
 
 void StartGame2(void);
+void StartGame1(void);
+void calculatespeed();
 
 void showScore(void);
 #define CMD_LINES 40  //콘솔창 줄 수
@@ -78,6 +96,8 @@ int main() {
 		menu = Choice_List(choice);
 		switch (menu) {
 		case 8:
+			StartGame1();
+
 			break;
 		case 10:
 			StartGame2();  // 타자 게임 실행
@@ -89,6 +109,7 @@ int main() {
 			showScore();
 			break;
 		case 16:
+			battinggame();
 			break;
 		case 18:
 			break; 
@@ -135,7 +156,7 @@ void clear_menu() { // 타이틀 창 출력 함수
 
 //메뉴 화면 출력 함수
 void title(void) {
-	int i, j;
+	int i;
 	
 	while (kbhit()) getch();  //버퍼에 있는 키값을 버림
 	clear_menu();
@@ -143,23 +164,46 @@ void title(void) {
 	GotoXY(40, 3);  printf("│%18s│"," Batting practice");
 	GotoXY(40, 4); printf("└"); for (i = 0; i < 18; i++) printf("─"); printf("┘");
 
-	GotoXY(35, 8); printf("1. Classic Batting Practice ");
+	GotoXY(35, 8); printf("1.    Batting Practice ");
 	GotoXY(35, 10); printf("2.      Batting Game");
 	GotoXY(35, 12); printf("3.       add Game");
-	GotoXY(35, 14); printf("4.          Score");
-	GotoXY(35, 16); printf("5.          use");
-	GotoXY(35, 18); printf("6.          Exit ");
+	GotoXY(35, 14); printf("4.         Score");
+	GotoXY(35, 16); printf("5.         use");
+	GotoXY(35, 18); printf("6.         Exit ");
 
 }
 
 // 메뉴 선택 함수 
 int Choice_List(int choice)
 {
+	
 	int i; //
 	int y = 8; // 화살표를 1. 에 표시한다
 
 	do { // do-while로 실행하므로서 화살표를 화면에 띄우고 시작한다
-		
+		switch (y){
+		case 8:
+			GotoXY(40, 3);  printf("│%18s│", "  Batting practice");
+			break;
+
+		case 10:
+			GotoXY(40, 3);  printf("│%18s│", "   Batting Game ");
+			break;
+		case 12:
+			GotoXY(40, 3);  printf("│%18s│", "   add Game    ");
+			break;
+		case 14:
+			GotoXY(40, 3);  printf("│%18s│", "   Score      ");
+			break;
+		case 16:
+			GotoXY(40, 3);  printf("│%18s│", "    use       ");
+			break;
+		case 18:
+			GotoXY(40, 3);  printf("│%18s│", "   Exit      ");
+			break;
+
+		}
+	
 		for (i = 8; i < 19; i += 2) {
 			GotoXY(31, i); printf(" "); //이전 화살표 지우기
 		}
@@ -263,14 +307,14 @@ void InitScreen(void)
 	GotoXY(68, 26); printf("└───┘");
 }
 
-
+//주 실행 함수
 void Run() {
 	int i, count, key; // i는 단어 19개를 만들기위해 , count 는  , key사용자 입력값
 	count =  1;
 	
 	for(i = 0; i< 22;i++)
 	{
-		printwordset(i);
+		printwordset(i); 
 
 	}
 	while (stage != 0) {
@@ -461,7 +505,7 @@ void EraseWord(int i)
 	}
 }
 
-
+//다음 스테이지 화면 출력,종료 화면 
 void StageScreen(void)
 {
 	system("cls");
@@ -490,4 +534,235 @@ void StageScreen(void)
 
 void showScore(void) {
 
+}
+
+// TP 배팅 x`게임 시작함수
+void battinggame(){
+	finish_TP = 0;
+	g3_count = 0;
+	rand_TP_answer();
+	typ_count = 0; //입력한 갯수
+	g_start_time = clock(); //시작 시간 계산
+	clear_menu();
+	start = time(0);
+	Run_TP();
+	end = time(0);
+	calculatespeed();
+
+}
+
+//랜덤으로 문자  출력
+void rand_TP_answer() {
+	int i;
+	for (i = 0; i < 100; i++) {
+		typing_answer[i] = rand() % ('z' - 'a' + 1) + 'a';
+	}
+}
+
+// TP_출력 함수
+void TP_print() {
+	int i = 0,j;
+	for (i; i < 100; i++) {
+		j =i / 50;
+		GotoXY(25 + i% 50, 3*j + 2);
+		SetCursorVisible(0);
+
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15); // 모든 글자를 밝은 흰색으로 설정
+		if (typ_count > i && typing_answer[i] != typing_user[i]){
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12); // 글자를 빨간색 설정;
+			printf("\a");
+		}
+		printf("%c", typing_answer[i]);
+		if (i < typ_count) {
+			GotoXY(25 + i % 50, 3 * j + 3);
+			printf("%c", typing_user[i]);
+			
+
+		}
+	}
+}
+//TP주함수
+void Run_TP() {
+	int i, count = 0, key;
+
+	while (finish_TP == 0) {
+		if (_kbhit()) {
+			key = getch();
+			Process_TP(key);
+
+		};
+		TP_print();
+		if (typ_count == 100)
+			finish_TP = 2;
+	
+	}
+
+	for (i = 0; i < typ_count; i++) {
+		if (typing_answer[i] == typing_user[i])
+			g3_count++;
+	}
+}
+
+//TP입력 처리
+void Process_TP(int key)
+{
+
+	if (key == KEY_ESC) {
+		finish_TP = 1;
+		
+	}
+	else if (key == KEY_BS)  //입력값이 백스페이스라면
+	{
+		if (typ_count != 0)  //여태 입력값이 0이 아니라면 
+		{
+			GotoXY( 25+(typ_count - 1) % 50, 3 * ((typ_count - 1) / 50 )+ 3); //입력값 마지막-1 위치로 
+			typing_user[typ_count - 1] = NULL; //입력값 저장되있는 것 마지막 글자 제거
+			printf("  ");   //입력란 마지막에 쓰여진 것 제거
+			typ_count -= 1;
+
+
+		}
+	}
+	else if (key != KEY_ENTER) //입력값이 엔터,백스페이스 가 아니면
+	{
+			GotoXY(26 + (typ_count - 1) % 50, 3 * ((typ_count - 1) / 50 )+ 3);
+			
+			typing_user[typ_count] = key;
+			typ_count++;  //입력한 갯수 +1
+	
+	}
+	else  //엔터입력
+	{
+		
+	}
+	
+
+}
+
+void StartGame1() {
+	g_input_word_length = 0;
+	InitScreen();
+	stage = 1;
+	g_chage_speed = 5;
+	g_fail_count = 0;
+	fileword();
+	Run1();
+	 
+}
+void Run1() {
+	int i, count, key; //  , count 는  , key사용자 입력값
+	count = 1;
+	while (1) {
+
+		g_screen_word[0].index = rand() % WORD_COUNT;
+
+		i = 0;
+		InitScreen();
+		GotoXY(40, 8); printf("%s", g_words[g_screen_word[0].index]);
+		g_start_time = (unsigned)time(0);
+
+		while (stage != 0) {
+			
+
+			if (kbhit()) {
+				key = getch();
+				ProcessInput1(key,&i);
+			}
+
+
+			if (time(0) > g_start_time + g_chage_speed)
+			{
+				i++;
+
+				g_start_time = time(0); //시간 설정
+
+			}
+		}
+	};
+		if (i > 100) {
+			stage == 0;
+		}
+
+	}
+}
+
+void ProcessInput1(int key, int *i)
+{
+
+	if (key == KEY_ESC) {
+		G2score[G2count] = stage;
+		G2count++;
+		stage = 0;
+		StageScreen();
+	}
+	else if (key == KEY_BS)  //입력값이 백스페이스라면
+	{
+		if (g_input_word_length != 0)  //여태 입력값이 0이 아니라면 
+		{
+			GotoXY(30 + g_input_word_length - 1, 25); //입력값 마지막-1 위치로 
+			g_input_word[g_input_word_length - 1] = NULL; //입력값 저장되있는 것 마지막 글자 제거
+			printf(" ");   //입력란 마지막에 쓰여진 것 제거
+			g_input_word_length -= 1;
+
+
+		}
+	}
+	else if (key != KEY_ENTER) //입력값이 엔터,스페이스 가 아니면
+	{
+		if (g_input_word_length != 24)  //여태 입력한 값이 24자를 넘지 않으면
+		{
+			GotoXY(30 + g_input_word_length, 25);
+			printf("%c", key);  //입력칸 마지막에 출력
+			g_input_word[g_input_word_length] = key;
+			g_input_word_length++;  //입력한 갯수 +1
+		}
+	}
+	else  //엔터입력
+	{
+		int count;
+		CompareWords1(i);
+		GotoXY(30, 25);
+		for (count = 0; count < strlen(g_input_word); count++)
+		{
+			printf(" ");    //여태 입력한 자리수만큼 공백 출력
+		}
+		for (count = 0; count < g_input_word_length; count++)
+		{
+			g_input_word[count] = NULL;  //여태 입력한 자리수만큼 input_word 초기화
+		}
+		g_input_word_length = 0;  // 입력한값 0으로 바꿈
+	}
+
+
+}
+void CompareWords1(int *i) {
+
+	if (strcmp(g_input_word, g_words[g_screen_word[*i].index]) == 0) // 화면에 뜬 단어 중에 일치하는 것이 있으면
+	{
+
+		g_score++;   //점수 ++
+		UpdateScore();  //
+		(*i)++;
+
+	}
+	else {
+		g_fail_count++;  //잘못 입력시 실패횟수 1추가
+		UpdateFailCount(); //실패횟수 출력 
+	 //
+	}
+}
+
+
+void calculatespeed()
+{
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15); // 모든 글자를 밝은 흰색으로 설정
+
+	timespent = end - start;
+	GotoXY(28, 24);
+		printf("\n  정확도: %d %%\n", g3_count*100/typ_count);
+		GotoXY(28, 25);
+		printf("타수: %.0lf", typ_count * 60 / timespent);
+		GotoXY(48, 25);
+		printf("유효타수: %.0lf\n", g3_count * 60 / timespent);
+	Sleep(3000);
 }
