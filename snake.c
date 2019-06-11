@@ -48,7 +48,7 @@ void status(void); // 개발자용 status표시
 int snakegame() {
 	snaketitle();
 	int t = 0;
-	while (t ==0) {
+	while (t == 0) {
 		if (kbhit()) do { key = getch(); } while (key == 224); //키 입력받음
 		Sleep(speed);
 
@@ -78,6 +78,8 @@ int snakegame() {
 
 		if (status_on == 1) status(); // status표시 
 	}
+
+	return 0;
 }
 
 ///////////////////////////MAIN END////////////////////////////////
@@ -137,7 +139,7 @@ void reset(void) {
 }
 
 void draw_map(void) { //맵 테두리 그리는 함수 
-	int i, j;
+	int i;
 	for (i = 0; i < MAP_WIDTH; i++) {
 		gotoxy(MAP_X + i, MAP_Y, "■");
 	}
