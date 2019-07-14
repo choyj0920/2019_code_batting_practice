@@ -49,6 +49,8 @@ int snakegame() {
 	snaketitle();
 	int t = 0;
 	while (t == 0) {
+		if (key == ESC)
+			break;
 		if (kbhit()) do { key = getch(); } while (key == 224); //키 입력받음
 		Sleep(speed);
 
@@ -107,7 +109,7 @@ void snaketitle(void) {
 	while (1) {
 		if (kbhit()) { //키입력받음 
 			key = getch();
-			if (key == ESC) exit(0); // ESC키면 종료 
+			if (key == ESC) break; // ESC키면 종료 
 			else break; //아니면 그냥 계속 진행 
 		}
 		gotoxy(MAP_X + (MAP_WIDTH / 2) - 7, MAP_Y + 9, " < PRESS ANY KEY TO START > ");

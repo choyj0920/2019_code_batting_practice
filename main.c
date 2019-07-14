@@ -122,7 +122,7 @@ int main() {
 
 			break;
 		case 16:
-		
+
 			break;
 
 		}
@@ -171,9 +171,9 @@ void title(void) {
 
 	while (kbhit()) getch();  //버퍼에 있는 키값을 버림
 	clear_menu();
-	GotoXY(40, 2); printf("┌"); for (i = 0; i < 18; i++) printf("─"); printf("┐");
+	GotoXY(40, 2); printf("┌ "); for (i = 0; i < 18; i++) printf("─"); printf("┐");
 	GotoXY(40, 3);  printf("│%18s│", " Batting practice");
-	GotoXY(40, 4); printf("└"); for (i = 0; i < 18; i++) printf("─"); printf("┘");
+	GotoXY(40, 4); printf("└ "); for (i = 0; i < 18; i++) printf("─"); printf("┘");
 
 	GotoXY(35, 8); printf("1.    Batting Practice ");
 	GotoXY(35, 10); printf("2.      Batting Game");
@@ -208,14 +208,14 @@ int Choice_List(int choice)
 		case 16:
 			GotoXY(40, 3);  printf("│%18s│", "    EXIT       ");
 			break;
-		
+
 
 		}
 
 		for (i = 8; i < 19; i += 2) {
 			GotoXY(31, i); printf(" "); //이전 화살표 지우기
 		}
-		if (y >= 8 || y <= 18) {
+		if (y >= 8 || y <= 16) {
 			GotoXY(31, y); //선택지 옆에
 			printf("▶");  //출력하여 현재 선택 사항을 확인
 			SetCursorVisible(0);
@@ -223,7 +223,7 @@ int Choice_List(int choice)
 		choice = getch(); //화살표를 입력받음
 
 		if (choice == 80) {       //아랫쪽 화살표를 입력받고,
-			if (y < 18) {        //현재 화살표의 위치가 가장 아랫쪽이 아니라면
+			if (y < 16) {        //현재 화살표의 위치가 가장 아랫쪽이 아니라면
 				y += 2;         //화살표를 아래로 내린다
 			}
 			else if (y == 16)
@@ -315,16 +315,15 @@ int Choice_Game1(int choice)
 	do { // do-while로 실행하므로서 화살표를 화면에 띄우고 시작한다
 		switch (y) {
 		case 8:
-			GotoXY(40, 3);  printf("│%18s│", "  Easy");
+			GotoXY(40, 3);  printf("│%s│", "       Easy      ");
 			break;
 
 		case 10:
-			GotoXY(40, 3);  printf("│%18s│", "   Intermediate ");
+			GotoXY(40, 3);  printf("│%s│", "   Intermediate  ");
 			break;
 		case 12:
-			GotoXY(40, 3);  printf("│%18s│", "   Hard    ");
+			GotoXY(40, 3);  printf("│%s│", "       Hard      ");
 			break;
-	
 		}
 
 		for (i = 8; i < 19; i += 2) {
@@ -487,7 +486,7 @@ void CompareWords1(int *i) {
 void NextStage1()
 {
 	if (g_fail_count == 5) {  //실패한 횟수가 5번 보다 많을 경우 
-		system("cls");		
+		system("cls");
 		GotoXY(0, 10);
 		printf("%12s┌────────────┐\n", " ");
 		printf("%12s│%12s│\n", "", "    실패..");
@@ -517,7 +516,7 @@ void NextStage1()
 
 //타자게임 시작 함수
 void StartGame2(void) {
-	
+
 	void StartCountDown();
 	stage = 1;
 	g_falling_speed = 2.0;
@@ -533,7 +532,7 @@ void StartGame2(void) {
 
 // 타자 게임 틀 출력 함수
 void InitScreen2(void)
-{	
+{
 
 	clear_menu();
 
@@ -743,7 +742,7 @@ void UpdateFailCount(void)
 }
 
 void DrawWord1(int i)
-{	
+{
 	if (i != 0) {
 		GotoXY(40, 8);
 		printf("%20s", " ");
@@ -829,7 +828,7 @@ void battinggame() {
 	g_start_time = clock(); //시작 시간 계산
 	clear_menu();
 	start = (unsigned)time(0);
-	Run_TP(); 
+	Run_TP();
 	calculatespeed();
 	Sleep(3000);
 
@@ -878,13 +877,13 @@ void Run_TP() {
 		TP_print();
 		if (typ_count == 100)
 			finish_TP = 2;
-		
+
 		calculatespeed();
 
 
 	}
 
-	
+
 }
 
 //TP입력 처리
@@ -928,10 +927,10 @@ void calculatespeed()
 {
 	end = (unsigned)time(0);
 
-	if (typ_count==0)
+	if (typ_count == 0)
 		return 0;
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15); // 모든 글자를 밝은 흰색으로 설정
-	g3_count=0;
+	g3_count = 0;
 	for (int i = 0; i < typ_count; i++) {
 		if (typing_answer[i] == typing_user[i])
 			g3_count++;
