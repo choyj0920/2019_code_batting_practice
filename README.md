@@ -14,7 +14,7 @@
 
 3번의 게임은 랜덤의 100글자가 나오면 입력하며 틀린 글자는 바로바로  붉은 글씨로 색칠 되며 정확도 타수 유효타수등이 출력
 
-4번은 인터넷의 스네이크 함수를 그대로 복사 ㅎ
+4번은 스네이크 게임
 
 ## Source
 * 게임 틀을 그리기 위한 커서를 제어하는 함수와 단어의 속도를 제어하기위한 기본적인 시간함수 : [util.h](https://github.com/parkseulkee/typing_game/blob/master/util.h) [util.c](https://github.com/parkseulkee/typing_game/blob/master/util.c)
